@@ -272,7 +272,7 @@ export class Subject {
                 }
             }
 
-            OrmUtils.mergeDeep(updateMap, valueMap);
+            OrmUtils.mergeDeep(this.metadata.connection.options.skipMergeDeepPrototypes, updateMap, valueMap);
             return updateMap;
         }, {} as ObjectLiteral);
         this.changeMaps = changeMapsWithoutValues;

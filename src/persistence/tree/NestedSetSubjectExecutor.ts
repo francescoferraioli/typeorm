@@ -62,18 +62,20 @@ export class NestedSetSubjectExecutor {
                 `WHERE ${rightColumnName} >= ${parentNsRight}`);
 
             OrmUtils.mergeDeep(
+                this.queryRunner.connection.options.skipMergeDeepPrototypes,
                 subject.insertedValueSet,
                 subject.metadata.nestedSetLeftColumn!.createValueMap(parentNsRight),
                 subject.metadata.nestedSetRightColumn!.createValueMap(parentNsRight + 1),
             );
         } else {
             const isUniqueRoot = await this.isUniqueRootEntity(subject, parent);
-            
+
             // Validate if a root entity already exits and throw an exception
             if (!isUniqueRoot)
                 throw new NestedSetMultipleRootError();
 
             OrmUtils.mergeDeep(
+                this.queryRunner.connection.options.skipMergeDeepPrototypes,
                 subject.insertedValueSet,
                 subject.metadata.nestedSetLeftColumn!.createValueMap(1),
                 subject.metadata.nestedSetRightColumn!.createValueMap(2),
@@ -138,18 +140,18 @@ export class NestedSetSubjectExecutor {
                 } else {
                     entitySize = parentNs.right - entityNs.left;
                 }
-                
+
                 // Moved entity logic
-                const updateLeftSide = 
+                const updateLeftSide =
                     `WHEN ${leftColumnName} >= ${entityNs.left} AND ` +
                         `${leftColumnName} < ${entityNs.right} ` +
                     `THEN ${leftColumnName} + ${entitySize} `;
 
-                const updateRightSide = 
+                const updateRightSide =
                     `WHEN ${rightColumnName} > ${entityNs.left} AND ` +
                         `${rightColumnName} <= ${entityNs.right} ` +
                     `THEN ${rightColumnName} + ${entitySize} `;
-                
+
                 // Update the surrounding entities
                 if (isMovingUp) {
                     await this.queryRunner.query(`UPDATE ${tableName} ` +
@@ -187,7 +189,7 @@ export class NestedSetSubjectExecutor {
             }
         } else {
             const isUniqueRoot = await this.isUniqueRootEntity(subject, parent);
-            
+
             // Validate if a root entity already exits and throw an exception
             if (!isUniqueRoot)
                 throw new NestedSetMultipleRootError();
@@ -211,7 +213,7 @@ export class NestedSetSubjectExecutor {
         let entitiesIds: ObjectLiteral[] = [];
         for (const subject of subjects) {
             const entityId = metadata.getEntityIdMap(subject.entity);
-            
+
             if (entityId) {
                 entitiesIds.push(entityId);
             }
@@ -267,7 +269,7 @@ export class NestedSetSubjectExecutor {
                     }
                     data.push(entry);
                 }
-                
+
                 return data;
             });
     }

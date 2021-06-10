@@ -1,4 +1,5 @@
 import {ObjectLiteral} from "../common/ObjectLiteral";
+import { Constructor } from "../connection/BaseConnectionOptions";
 
 export class OrmUtils {
 
@@ -67,7 +68,7 @@ export class OrmUtils {
      *
      * @see http://stackoverflow.com/a/34749873
      */
-    static mergeDeep(target: any, ...sources: any[]): any {
+    static mergeDeep(skipMergeDeepPrototypes: Constructor[] = [],target: any, ...sources: any[]): any {
         if (!sources.length) return target;
         const source = sources.shift();
 
@@ -82,17 +83,18 @@ export class OrmUtils {
                 && !(value instanceof Set)
                 && !(value instanceof Date)
                 && !(value instanceof Buffer)
-                && !(value instanceof RegExp)) {
+                && !(value instanceof RegExp)
+                && skipMergeDeepPrototypes.every(X => !(value instanceof X))) {
                     if (!target[key])
                         Object.assign(target, { [key]: Object.create(Object.getPrototypeOf(value)) });
-                    this.mergeDeep(target[key], value);
+                    this.mergeDeep(skipMergeDeepPrototypes, target[key], value);
                 } else {
                     Object.assign(target, { [key]: value });
                 }
             }
         }
 
-        return this.mergeDeep(target, ...sources);
+        return this.mergeDeep(skipMergeDeepPrototypes, target, ...sources);
     }
 
     /**

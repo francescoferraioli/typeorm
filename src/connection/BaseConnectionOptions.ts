@@ -6,10 +6,13 @@ import {Logger} from "../logger/Logger";
 import {Connection} from "./Connection";
 import {QueryResultCache} from "../cache/QueryResultCache";
 
+export type Constructor = new (...args: any[]) => Object;
+
 /**
  * BaseConnectionOptions is set of connection options shared by all database types.
  */
 export interface BaseConnectionOptions {
+    readonly skipMergeDeepPrototypes?: Constructor[];
 
     /**
      * Database type. This value is required.
